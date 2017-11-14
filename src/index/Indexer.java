@@ -2,8 +2,6 @@ package index;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -11,7 +9,6 @@ import java.util.Date;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -25,8 +22,6 @@ import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.nodes.Node;
 
-import co.nstant.in.cbor.CborException;
-
 public class Indexer {
 
 	public static int doc_types;
@@ -39,50 +34,46 @@ public class Indexer {
 	public Indexer(String INDEX_DIR) throws IOException {
 
 		System.setProperty("file.encoding", "UTF-8");
-		
-
-		
-
-		
 
 		Directory dir = FSDirectory.open(Paths.get(INDEX_DIR));
 		analyzer = new EnglishAnalyzer();
 		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 		writer = new IndexWriter(dir, config);
 
-
-		
-
 	}
-	
-	
 
-
+	/*
+	 * @param1 Directory/folder/file
+	 * If the param is directory, it opens the subdirectories recursively.
+	 * If the param is file, function call to index_TREC_File to read single file
+	 */
 	void index_TREC_Directory_Files(File dir) throws IOException {
 
-		
-		
 		File files[] = dir.listFiles();
 
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isDirectory()) {
-					System.out.println(files[i].getName() + "\n");
+					// System.out.println(files[i].getName() + "\n");
 					index_TREC_Directory_Files(files[i]);
 				}
 
 				else {
-					
-					System.out.println("---" +files[i].getName().toString()+ "\n");
-					index_TREC_File(files[i].getName());
+
+					// System.out.println("---" +files[i].getName()+ "\n");
+					index_TREC_File(files[i].getPath());
 				}
-					
+
+			}
 		}
 	}
-	}
 
-	void index_TREC_File(String filename) throws IOException
-	{
+	/*
+	 * param single file
+	 * Reads the XML file and apply necessary tokenizers,
+	 * text and id is retrieved and passed to createIndex to index
+	 */
+	void index_TREC_File(String filename) throws IOException {
 		BufferedReader br;
 		br = new BufferedReader(new FileReader(filename));
 
@@ -110,18 +101,16 @@ public class Indexer {
 			}
 
 		}
-		
+
 		text = convert(sb.toString().replace("><", "> <"));
-		
-		System.out.println(doc_id + " --- " + text + "/n");
+
+		// System.out.println(doc_id + " --- " + text + "/n");
 		createIndex(doc_id, text);
 
 		br.close();
 
 	}
 
-	
-	
 	/**
 	 * uses jJSOUP
 	 * 
@@ -155,8 +144,6 @@ public class Indexer {
 		}
 	}
 
-	
-
 	/*
 	 * createIndex - Responsible for creating Index file Two Fields are added to
 	 * the index document Field 1 - id, Field 2 - contents
@@ -173,21 +160,19 @@ public class Indexer {
 	public void close() throws IOException {
 		writer.close();
 	}
-	
-	
-	public static void main(String[] args) throws IOException
-	{
-		String TREC_FILE = "/Users/Nithin/Desktop/PubMedDatas/pmc-00/00/13900.nxml";
+
+	public static void main(String[] args) throws IOException {
+		String TREC_FILE = "/Users/Nithin/Desktop/PubMedDatas";
 		String INDEX_DIR = "/Users/Nithin/Desktop/ClinicalIndex";
 		Date start = new Date();
 
 		Indexer index = new Indexer(INDEX_DIR);
-		
+
 		File dir_Name = new File(TREC_FILE);
-		//index.index_TREC_Directory_Files(dir_Name);
-		
-		index.index_TREC_File(TREC_FILE);
-		
+		index.index_TREC_Directory_Files(dir_Name);
+
+		// index.index_TREC_File(TREC_FILE);
+
 		index.close();
 		Date end = new Date();
 		System.out.println(end.getTime() - start.getTime() + " total milliseconds");
