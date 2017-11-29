@@ -68,10 +68,52 @@ public class Search {
 		
 		String fname = "/Users/Nithin/Desktop/topics2016.xml";
 		loadXMLFile(fname);
-		runQuery(summ_queries, output_File_PATH);
+		//runQuery(summ_queries, output_File_PATH);
 		QuerySearch(Querylist, numList, output_File_PATH);
 
 	}
+	
+    public synchronized static String tidyWord(String str){
+        
+        if(str.matches("[-]+")){
+            return "";
+        }else if(str.length() > 20){
+            return "";
+        }else if( str.startsWith("<") && str.endsWith(">")){
+            return "";
+        }else {
+            
+            //to lower case
+            str = str.toLowerCase();
+
+            //replace any non word characters
+            str = str.replaceAll("[^a-zA-Z0-9- ]", "");
+
+            
+
+            return str;
+        }
+        
+    }  
+
+    
+    public static String strip_whitespace(String word){
+        word = word.replaceAll("[^a-zA-Z0-9-]", "");
+        return word;
+    }
+    
+    
+    public String[] clean_line(String q){
+        
+        StringBuilder sb = new StringBuilder();
+        
+        for (String w:q.split(" ")){
+            sb.append(tidyWord(w)).append(" ");
+            
+        }
+        
+        return sb.toString().split(" ");
+    }
 
 	public void loadXMLFile(String fname) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(fname));
@@ -152,7 +194,6 @@ public class Search {
 			
 			int rank = 0;
 			System.out.println(text + " " + rank);
-			System.out.println(text + " " + rank);
 			TopDocs foundDocs1 = searchQuery(text, searcher);
 			for (ScoreDoc sd : foundDocs1.scoreDocs) {
 				Document d = searcher.doc(sd.doc);
@@ -176,30 +217,29 @@ public class Search {
 		FileWriter writer = new FileWriter(file_write);
 
 		for (int i = 0; i < Querylist.size(); i++) {
-			String text = Querylist.get(i);
+			String text = strip_whitespace(Querylist.get(i));
 
 			String num = numList.get(i);
 			int rank = 0;
 
-			System.out.println(text + " " + rank);
-			TopDocs foundDocs1 = searchQuery(text, searcher);
+			
+			TopDocs foundDocs1 = searchQuery(text.toLowerCase(), searcher);
 			for (ScoreDoc sd : foundDocs1.scoreDocs) {
 				Document d = searcher.doc(sd.doc);
 				rank = rank + 1;
 				String a = d.get("id");
+				//System.out.println(num + " " + text + "\n" );
 				writer.write(num + " Q0 " + a + " " + rank + " " + sd.score + " $team5-$CDS-runFile " + "\n");
 				writer.flush();
 
 			}
 
 		}
-
+		
 		writer.close();
 
 	}
 
-	// }
-	//
 
 	public static List<String> parseKeywords(Analyzer analyzer, String query) throws IOException {
 
