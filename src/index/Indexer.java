@@ -152,7 +152,7 @@ public class Indexer {
 		Document doc = new Document();
 		doc.add(new StringField("id", id, Field.Store.YES));
 		doc.add(new TextField("contents", text, Field.Store.YES));
-
+		System.out.println("Indexing \n");
 		writer.addDocument(doc);
 
 	}
@@ -163,9 +163,10 @@ public class Indexer {
 
 	public static void main(String[] args) throws IOException {
 		String TREC_FILE = "/Users/Nithin/Desktop/PubMedDatas";
-		String INDEX_DIR = "/Users/Nithin/Desktop/ClinicalIndex";
+		String INDEX_DIR = "/Users/Nithin/Desktop/ClinicalIndex_fullIndex";
 		Date start = new Date();
 
+		System.out.println(start.getTime() + " total milliseconds");
 		Indexer index = new Indexer(INDEX_DIR);
 
 		File dir_Name = new File(TREC_FILE);
@@ -174,6 +175,7 @@ public class Indexer {
 		// index.index_TREC_File(TREC_FILE);
 
 		index.close();
+		System.out.println("Indexing finished \n");
 		Date end = new Date();
 		System.out.println(end.getTime() - start.getTime() + " total milliseconds");
 	}

@@ -1,4 +1,5 @@
 import java.io.File;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -15,6 +16,7 @@ import tools.DataSource;
 import tools.XMLReader;
 
 import index.*;
+import search.*;
 
 public class Main {
 
@@ -69,16 +71,20 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) throws FileNotFoundException, CborException {
+	
+		
+	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 
 		String filename = "/Users/Nithin/Desktop/topics2016.xml";
 		String dir_to_Index = "/Users/Nithin/Desktop/PubMedDatas";
 		String INDEX_DIR = "/Users/Nithin/Desktop/ClinicalIndex";
+		String output_File_PATH = "/Users/Nithin/Desktop/clinicaloutput/cdspoutput";
 
-		read_Query_details_from_XMLFile(filename);
-		
+		read_Query_details_from_XMLFile(filename);		
+		Search try1 = new Search(INDEX_DIR, output_File_PATH, summarylist, numberlist);
 		//Indexer oneTimeIndex = new Indexer(dir_to_Index, INDEX_DIR);
+		
 		
 
 
